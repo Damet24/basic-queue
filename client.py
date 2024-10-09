@@ -17,4 +17,8 @@ if __name__ == '__main__':
         "name": "Daniel",
         "last_name": "Mercado"
     }
-    send_message(message= f"get:{uuid4()}:{json.dumps(data)}")
+    send_message(message= f"[credentials=user:password][len=1024]\r\nadd:{json.dumps(data)}")
+    send_message(message= f"[credentials=user:password][len=1024]\r\nadd:{json.dumps(data)}")
+    send_message(message= f"[credentials=user:password][len=1024]\r\nadd:{json.dumps(data)}")
+
+    send_message(message= f"[credentials=user:password][len=1024]\r\nfetch:")

@@ -2,7 +2,7 @@ import socket
 from logging import Logger
 
 from queue import Queue
-from request import decode
+from request import RequestProcessor
 
 
 class Server:
@@ -28,14 +28,9 @@ class Server:
                         message = data.decode()
                         self.__logger.info(f'Receive: {message}')
                         result = self.process_request(message)
-                        response = f'Eco: {result}'
+                        response = result
                         client_socket.sendall(response.encode())
 
     def process_request(self, message: str):
-        decoded_message = decode(message)
-        if decoded_message["command"] == "add":
-            print(decoded_message["content"])
-            self.__q.enqueue(decoded_message["id"], decoded_message["content"])
-        if decoded_message["command"] == "get":
-            return self.__q.dequeue()
-        return None
+        decoded_message = RequestProcessor.decode(message)
+        return RequestProcessor.process_command(self.__q, decoded_message["command"], decoded_message["content"])

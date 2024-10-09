@@ -1,3 +1,4 @@
+import uuid
 from collections import deque
 
 from database import Database
@@ -8,9 +9,10 @@ class Queue:
         self.queue = deque()
         self.db = Database(database)
 
-    def enqueue(self, _id: str, content: str):
-        self.queue.append({'id': _id, 'content': content})
-        self.db.insert(_id, content)
+    def enqueue(self, content: str):
+        _id = uuid.uuid4()
+        self.queue.append({'id': _id.__str__(), 'content': content})
+        self.db.insert(_id.__str__(), content)
 
     def enqueue_batch(self, iterable):
         self.queue.extend([{'id': _item[0], 'content': _item[1]} for _item in iterable])
