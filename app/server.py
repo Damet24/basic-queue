@@ -1,9 +1,8 @@
 import socket
-import threading
 
 from contexts.application.base_service import BaseService
 from contexts.application.custom_queue import Queue
-from apps.server.request import RequestProcessor
+from app.request import RequestProcessor
 from contexts.application.auth_service import AuthService
 from contexts.application.configuration_service import ConfigurationService
 

@@ -1,8 +1,8 @@
 import logging.config
 from dependency_injector import containers, providers
 
-from apps.server.request import RequestProcessor
-from apps.server.server import Server
+from app.request import RequestProcessor
+from app.server import Server
 from contexts.application.auth_service import AuthService
 from contexts.application.configuration_service import ConfigurationService
 from contexts.application.custom_queue import Queue

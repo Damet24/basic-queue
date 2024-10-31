@@ -1,4 +1,4 @@
 .idea
-/apps/server/config.ini
-/apps/custtom_queue.db
-/apps/data.json
+/app/config.ini
+/app/custtom_queue.db
+/app/data.json
