@@ -1,5 +1,5 @@
 import socket
-from logging import Logger
+import threading
 
 from contexts.application.base_service import BaseService
 from contexts.application.custom_queue import Queue
@@ -19,25 +19,47 @@ class Server(BaseService):
         self.__processor = processor
         self.__host = host
         self.__port = port
+        self.__running = False
+        self.__server_socket = None
 
     def start_server(self):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
-            server_socket.bind((self.__host, self.__port))
-            server_socket.listen()
+        self.__running = True
+        self.__server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__server_socket.bind((self.__host, self.__port))
+        self.__server_socket.listen()
+        self.logger.info(f'Server running in {self.__host}:{self.__port}')
 
-            self.logger.info(f'Server running in {self.__host}:{self.__port}')
-            while True:
-                client_socket, addr = server_socket.accept()
-                with client_socket:
-                    while True:
-                        data = client_socket.recv(1024)
-                        if not data:
-                            break
-                        message = data.decode()
-                        self.logger.info(f'Receive: {message}')
-                        result = self.process_request(message)
-                        response = result.__str__()
-                        client_socket.sendall(response.encode())
+        try:
+            while self.__running:
+                client_socket, addr = self.__server_socket.accept()
+                self.logger.info(f'Connection from {addr}')
+                self.handle_client(client_socket)
+        except Exception as e:
+            self.logger.error(f'Server error: {e}')
+        finally:
+            self.stop_server()
+
+    def stop_server(self):
+        self.__running = False
+        if self.__server_socket:
+            self.__server_socket.close()
+        self.logger.info('Server stopped.')
+
+    def handle_client(self, client_socket):
+        with client_socket:
+            while self.__running:
+                try:
+                    data = client_socket.recv(1024)
+                    if not data:
+                        break
+                    message = data.decode('utf-8')
+                    self.logger.info(f'Receive: {message}')
+                    result = self.process_request(message)
+                    response = str(result)
+                    client_socket.sendall(response.encode('utf-8'))
+                except Exception as e:
+                    self.logger.error(f'Error handling client: {e}')
+                    break
 
     def process_request(self, message: str):
         decoded_message = RequestProcessor.decode(message)
