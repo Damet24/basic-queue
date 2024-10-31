@@ -1,13 +1,15 @@
 import uuid
 from collections import deque
 
-from database import Database
+from contexts.application.base_service import BaseService
+from contexts.infrastructure.database.data_repository import DataRepository
 
 
-class Queue:
-    def __init__(self, database: str):
+class Queue(BaseService):
+    def __init__(self, data_repository: DataRepository):
+        super().__init__()
         self.queue = deque()
-        self.db = Database(database)
+        self.db = data_repository
 
     def enqueue(self, content: str):
         _id = uuid.uuid4()
@@ -15,8 +17,9 @@ class Queue:
         self.db.insert(_id.__str__(), content)
 
     def enqueue_batch(self, iterable):
-        self.queue.extend([{'id': _item[0], 'content': _item[1]} for _item in iterable])
-        self.db.insert_many(iterable)
+        data = [{'id': uuid.uuid4().__str__(), 'content': _item} for _item in iterable]
+        self.queue.extend(data)
+        self.db.insert_many(data)
 
     def dequeue(self):
         if self.queue:
